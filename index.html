@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anna University - Student Portal</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="login-page">
+<div class="bg-animated">
+  <div class="particle" style="--x:10%;--y:20%;--d:6s"></div>
+  <div class="particle" style="--x:80%;--y:10%;--d:8s"></div>
+  <div class="particle" style="--x:30%;--y:70%;--d:5s"></div>
+  <div class="particle" style="--x:70%;--y:80%;--d:9s"></div>
+  <div class="particle" style="--x:50%;--y:40%;--d:7s"></div>
+  <div class="grid-overlay"></div>
+</div>
+
+<div class="login-container">
+  <div class="login-box glass-card fade-in">
+    <div class="logo-section">
+      <img src="assets/logo.png" alt="Logo" class="logo-img pulse-anim">
+      <h1 class="uni-name">Anna University</h1>
+      <p class="uni-sub">Chennai, Tamilnadu</p>
+      <div class="divider-line"></div>
+      <p class="portal-label">Student Academic Portal</p>
+    </div>
+
+    <form class="login-form" onsubmit="handleLogin(event)">
+      <div class="input-group">
+        <label>Register Number</label>
+        <div class="input-wrap">
+          <span class="input-icon">🎓</span>
+          <input type="text" id="regNo" placeholder="e.g. 312521205001" required>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Date of Birth</label>
+        <div class="input-wrap">
+          <span class="input-icon">📅</span>
+          <input type="date" id="dob" required>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Captcha Verification</label>
+        <div class="captcha-section">
+          <canvas id="captchaCanvas" width="200" height="60"></canvas>
+          <button type="button" class="refresh-btn" onclick="generateCaptcha()">↻</button>
+        </div>
+        <div class="input-wrap mt-8">
+          <span class="input-icon">🔐</span>
+          <input type="text" id="captchaInput" placeholder="Enter captcha above" required maxlength="6">
+        </div>
+      </div>
+
+      <button type="submit" class="login-btn glow-btn">
+        <span class="btn-text">Login to Portal</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </form>
+
+    <div id="loginMsg" class="login-msg"></div>
+  </div>
+</div>
+
+<script>
+let captchaValue = '';
+function generateCaptcha() {
+  const canvas = document.getElementById('captchaCanvas');
+  const ctx = canvas.getContext('2d');
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  captchaValue = Array.from({length:6}, ()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  ctx.clearRect(0,0,200,60);
+  const grad = ctx.createLinearGradient(0,0,200,60);
+  grad.addColorStop(0,'#0d1b3e'); grad.addColorStop(1,'#1a2a4a');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,200,60);
+  for(let i=0;i<8;i++){
+    ctx.strokeStyle=`rgba(${Math.random()*100+50},${Math.random()*100+100},${Math.random()*100+200},0.4)`;
+    ctx.lineWidth=1; ctx.beginPath();
+    ctx.moveTo(Math.random()*200,Math.random()*60);
+    ctx.lineTo(Math.random()*200,Math.random()*60); ctx.stroke();
+  }
+  for(let i=0;i<30;i++){
+    ctx.fillStyle=`rgba(${Math.random()*100+100},${Math.random()*100+150},255,0.3)`;
+    ctx.fillRect(Math.random()*200,Math.random()*60,2,2);
+  }
+  const colors=['#00d4ff','#7b2ff7','#00ff9d','#ff6b35','#f7c59f','#e8f4fd'];
+  captchaValue.split('').forEach((ch,i)=>{
+    ctx.save();
+    ctx.translate(18+i*30, 30+Math.random()*10-5);
+    ctx.rotate((Math.random()-0.5)*0.4);
+    ctx.font = `bold ${24+Math.random()*6}px Orbitron, monospace`;
+    ctx.fillStyle = colors[i%colors.length];
+    ctx.shadowColor = colors[i%colors.length];
+    ctx.shadowBlur = 8;
+    ctx.fillText(ch,0,0); ctx.restore();
+  });
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const reg = document.getElementById('regNo').value.trim();
+  const cap = document.getElementById('captchaInput').value.trim().toUpperCase();
+  const msg = document.getElementById('loginMsg');
+  if(cap !== captchaValue) {
+    msg.textContent = '❌ Invalid captcha. Please try again.';
+    msg.className = 'login-msg error'; generateCaptcha(); return;
+  }
+  const students = {
+    '312521205001':'Sha','312521205002':'San','312521205003':'Seema',
+    '312521205004':'Aditya','312521205005':'Iniya','312521205006':'Hari',
+    '312521205007':'Indhu','312521205008':'Rahul'
+  };
+  if(!students[reg]) {
+    msg.textContent = '❌ Register number not found.';
+    msg.className = 'login-msg error'; return;
+  }
+  msg.textContent = '✅ Authenticating...';
+  msg.className = 'login-msg success';
+  localStorage.setItem('loggedStudent', reg);
+  setTimeout(()=>{ window.location.href='dashboard.html'; },1200);
+}
+window.onload = generateCaptcha;
+</script>
+</body>
+</html>
